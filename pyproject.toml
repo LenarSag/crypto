@@ -1,5 +1,10 @@
 [tool.ruff.format]
 quote-style = 'single'
 
+
+
+[tool.ruff.lint.pydocstyle]
+convention = "pep257"
+
 [tool.ruff]
 line-length=88
