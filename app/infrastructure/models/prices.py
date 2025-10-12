@@ -1,7 +1,7 @@
 from datetime import datetime
 from uuid import UUID, uuid4
 
-from sqlalchemy import ForeignKey
+from sqlalchemy import ForeignKey, Index
 from sqlalchemy.dialects.postgresql import UUID as PG_UUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from sqlalchemy.sql import func
@@ -20,6 +20,6 @@ class Price(Base):
 
     coin_id: Mapped[UUID] = mapped_column(ForeignKey('coins.id'))
 
-    coin = relationship(
-        'Coin', back_populates='subscriptions', cascade='all, delete-orphan'
-    )
+    coin = relationship('Coin', back_populates='prices')
+
+    __table_args__ = (Index('idx_coin_timestamp_desc', 'coin_id', timestamp.desc()),)

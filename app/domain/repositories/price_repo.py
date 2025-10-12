@@ -3,6 +3,7 @@ from datetime import datetime
 from typing import List, Optional
 from uuid import UUID
 
+from app.domain.const.constants import DEFAULT_LIMIT, DEFAULT_OFFSET
 from app.domain.entities.price import Price
 
 
@@ -17,8 +18,8 @@ class IPriceRepository(ABC):
         *,
         start_date: Optional[datetime] = None,
         end_date: Optional[datetime] = None,
-        limit: int = 100,
-        offset: int = 0,
+        offset: int = DEFAULT_OFFSET,
+        limit: int = DEFAULT_LIMIT,
     ) -> List[Price]: ...
 
     @abstractmethod

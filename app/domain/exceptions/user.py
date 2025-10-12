@@ -14,3 +14,9 @@ class IncorrectEmailOrPasswordError(Exception):
     def __init__(self):
         message = 'Incorrect email or password.'
         super().__init__(message)
+
+
+class InactiveUserError(Exception):
+    def __init__(self):
+        message = 'User is inactive.'
+        super().__init__(message)

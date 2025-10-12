@@ -1,5 +1,4 @@
 from datetime import datetime
-from enum import Enum
 from uuid import uuid4
 
 from sqlalchemy import Enum as SqlEnum
@@ -7,12 +6,8 @@ from sqlalchemy.dialects.postgresql import UUID as PG_UUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from sqlalchemy.sql import func
 
+from app.domain.entities.user import UserRole
 from app.infrastructure.db.base import Base
-
-
-class UserRole(Enum):
-    ADMIN = 'admin'
-    USER = 'user'
 
 
 class User(Base):
@@ -23,7 +18,7 @@ class User(Base):
     )
     username: Mapped[str]
     email: Mapped[str] = mapped_column(unique=True)
-    password: Mapped[str]
+    hashed_password: Mapped[str]
     telegram_id: Mapped[int | None]
     role: Mapped[UserRole] = mapped_column(SqlEnum(UserRole), default=UserRole.USER)
     is_active: Mapped[bool] = mapped_column(default=True)

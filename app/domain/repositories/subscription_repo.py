@@ -10,7 +10,7 @@ class ISubscriptionRepository(ABC):
     async def add(self, subscription: Subscription) -> None: ...
 
     @abstractmethod
-    async def get_by_id(self, subscription_id: int) -> Optional[Subscription]: ...
+    async def get_by_id(self, subscription_id: UUID) -> Optional[Subscription]: ...
 
     @abstractmethod
     async def list_by_user(
@@ -19,14 +19,18 @@ class ISubscriptionRepository(ABC):
 
     @abstractmethod
     async def list_by_coin(
-        self, user_id: UUID, *, active_only: bool = True
+        self, coin_id: UUID, *, active_only: bool = True
     ) -> List[Subscription]: ...
 
     @abstractmethod
     async def update(
         self,
-        subscription: Subscription,
-    ) -> None: ...
+        subscription_id: UUID,
+        update_data: dict,
+    ) -> Subscription: ...
 
     @abstractmethod
-    async def delete(self, subscription_id: int) -> None: ...
+    async def soft_delete(self, subscription_id: UUID) -> None: ...
+
+    @abstractmethod
+    async def delete_permanently(self, subscription_id: UUID) -> None: ...

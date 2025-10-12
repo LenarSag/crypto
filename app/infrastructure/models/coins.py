@@ -15,6 +15,7 @@ class Coin(Base):
     )
     ticker: Mapped[str] = mapped_column(unique=True)
     name: Mapped[str] = mapped_column(unique=True)
+    description: Mapped[str] = mapped_column(nullable=True)
     created_at: Mapped[str] = mapped_column(server_default=func.now())
 
     prices = relationship('Price', back_populates='crypto')
