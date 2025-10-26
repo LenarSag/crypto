@@ -62,12 +62,9 @@ class SQLAlchemyCoinRepository(ICoinRepository):
         stmt = (
             sql_update(CoinModel).where(CoinModel.id == coin_id).values(**update_data)
         )
-        await self._session.execute(stmt)
+        result = await self._session.execute(stmt)
         await self._session.commit()
 
-        result = await self._session.execute(
-            select(CoinModel).where(CoinModel.id == coin_id)
-        )
         coin_model = result.scalar()
         return CoinMapper.to_entity(coin_model)
 

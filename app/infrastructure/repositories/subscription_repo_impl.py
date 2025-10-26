@@ -58,6 +58,23 @@ class SqlAlchemySubscriptionRepository(ISubscriptionRepository):
         ]
         return subscriptions_list
 
+    async def update(
+        self,
+        subscription_id: UUID,
+        update_data: dict,
+    ) -> Subscription:
+        stmt = (
+            sql_update(SubscriptionModel)
+            .where(SubscriptionModel.id == subscription_id)
+            .values(**update_data)
+            .returning(SubscriptionModel)
+        )
+        result = await self._session.execute(stmt)
+        await self._session.commit()
+
+        updated_model = result.scalar()
+        return SubscriptionMapper.to_entity(updated_model)
+
     async def soft_delete(self, subscription_id: UUID) -> None:
         stmt = (
             sql_update(SubscriptionModel)

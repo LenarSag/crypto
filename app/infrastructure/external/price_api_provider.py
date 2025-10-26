@@ -35,4 +35,5 @@ class CoinPriceProvider(IExternalPriceProvider):
                     return round(float(price), 2)
         except Exception as e:
             logger.info(f'Failed to fetch {coin_ticker}: {e}')
-            return None
+
+        return None

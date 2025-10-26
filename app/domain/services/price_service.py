@@ -4,7 +4,9 @@ from uuid import UUID, uuid4
 
 from app.domain.const.constants import KEY_EXPIRATION_SECONDS
 from app.domain.entities.price import Price
+from app.domain.exceptions.price import PriceNotAvailableError
 from app.domain.ports.cache import ICache
+from app.domain.ports.price_provider import IExternalPriceProvider
 from app.domain.repositories.price_repo import IPriceRepository
 from app.infrastructure.cache.cache_serializers import PriceSerializer
 
@@ -12,8 +14,14 @@ from app.infrastructure.cache.cache_serializers import PriceSerializer
 class PriceService:
     """Business use-cases for managing prices."""
 
-    def __init__(self, price_repo: IPriceRepository, cache: ICache):
+    def __init__(
+        self,
+        price_repo: IPriceRepository,
+        price_provider: IExternalPriceProvider,
+        cache: ICache,
+    ):
         self._repo = price_repo
+        self._price_provider = price_provider
         self._cache = cache
 
     async def record_price(self, coin_id: UUID, value: float) -> None:
@@ -25,6 +33,21 @@ class PriceService:
             price=value,
         )
         await self._repo.add(price)
+
+    async def fetch_and_record_price(self, coin_ticker: str, coin_id: UUID) -> None:
+        """Fetch the current price from an external provider and record it."""
+
+        price_value = await self._price_provider.fetch_current_price(coin_ticker)
+        if price_value is not None:
+            return None
+
+        await self.record_price(coin_id, price_value)
+
+        cache_key = f'price:{coin_id}'
+        serialized_price = PriceSerializer.serialize(price_value)
+        await self._cache.set(
+            cache_key, serialized_price, expire_seconds=KEY_EXPIRATION_SECONDS
+        )
 
     async def list_prices_by_coin(
         self,
@@ -55,7 +78,7 @@ class PriceService:
 
         price = await self._repo.get_latest(coin_id)
         if not price:
-            return None
+            raise PriceNotAvailableError()
 
         serialized_price = PriceSerializer.serialize(price)
         await self._cache.set(

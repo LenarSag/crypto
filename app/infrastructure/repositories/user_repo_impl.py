@@ -52,12 +52,9 @@ class SQLAlchemyUserRepository(IUserRepository):
         stmt = (
             sql_update(UserModel).where(UserModel.id == user_id).values(**update_data)
         )
-        await self._session.execute(stmt)
+        result = await self._session.execute(stmt)
         await self._session.commit()
 
-        result = await self._session.execute(
-            select(UserModel).where(UserModel.id == user_id)
-        )
         user_model = result.scalar()
         return UserMapper.to_entity(user_model)
 
