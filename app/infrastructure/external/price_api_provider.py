@@ -5,12 +5,11 @@ from aiobreaker import CircuitBreaker
 from httpx import AsyncClient
 
 from app.domain.ports.price_provider import IExternalPriceProvider
-from app.infrastructure.const.constants import (
-    BASE_CRYPTO_URL,
+from app.infrastructure.config.constants import (
     CIRCUIT_BREAKER_FAIL_MAX,
     CIRCUIT_BREAKER_RESET_TIMEOUT,
-    MAIN_CURRENCY,
 )
+from app.infrastructure.config.settings import settings
 
 logger = logging.getLogger(__name__)
 breaker = CircuitBreaker(
@@ -23,11 +22,11 @@ class CoinPriceProvider(IExternalPriceProvider):
 
     @breaker
     async def fetch_price(self, coin_ticker: str) -> Optional[float]:
-        ticker = coin_ticker.upper() + MAIN_CURRENCY
+        ticker = coin_ticker.upper() + settings.MAIN_CURRENCY
         params = {'symbol': ticker}
         try:
             async with AsyncClient() as client:
-                response = await client.get(url=BASE_CRYPTO_URL, params=params)
+                response = await client.get(url=settings.BASE_CRYPTO_URL, params=params)
                 response.raise_for_status()
                 data = response.json()
                 price = data.get('price')

@@ -1,12 +1,8 @@
 from redis.asyncio import Redis, from_url
 
-REDIS_URL = 'redis://localhost:6379'
+from app.infrastructure.config.settings import settings
 
-
-redis: Redis = from_url(
-    REDIS_URL,
-    decode_responses=True,
-)
+redis: Redis = from_url(settings.redis_url)
 
 
 async def get_redis() -> Redis:
