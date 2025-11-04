@@ -1,5 +1,4 @@
-from domain.entities.user import User
-
+from app.domain.entities.user import User
 from app.infrastructure.models.users import User as UserModel
 
 

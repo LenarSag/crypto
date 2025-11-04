@@ -1,5 +1,4 @@
 from datetime import datetime
-from typing import Optional
 from uuid import uuid4
 
 from sqlalchemy import Enum as SqlEnum
@@ -8,7 +7,7 @@ from sqlalchemy.orm import Mapped, mapped_column, relationship
 from sqlalchemy.sql import func
 
 from app.domain.entities.user import UserRole
-from app.infrastructure.db.base import Base
+from app.infrastructure.models.base import Base
 
 
 class User(Base):
@@ -20,9 +19,11 @@ class User(Base):
     username: Mapped[str]
     email: Mapped[str] = mapped_column(unique=True)
     hashed_password: Mapped[str]
-    telegram_id: Mapped[Optional[int]]
+    telegram_id: Mapped[int]
     role: Mapped[UserRole] = mapped_column(SqlEnum(UserRole), default=UserRole.USER)
     is_active: Mapped[bool] = mapped_column(default=True)
     created_at: Mapped[datetime] = mapped_column(server_default=func.now())
 
-    subscriptions = relationship(back_populates='user')
+    subscriptions = relationship(
+        'Subscription', back_populates='user', cascade='all, delete-orphan'
+    )

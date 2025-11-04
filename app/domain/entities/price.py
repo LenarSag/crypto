@@ -3,7 +3,7 @@ from datetime import datetime, timezone
 from uuid import UUID
 
 
-@dataclass(frozen=True)
+@dataclass()
 class Price:
     id: UUID
     coin_id: UUID

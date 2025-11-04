@@ -1,5 +1,7 @@
-from domain.ports.message_broker import IMessageBroker
 from faststream.rabbit import RabbitBroker
+
+from app.domain.ports.message_broker import IMessageBroker
+from app.infrastructure.config.settings import settings
 
 
 class FastStreamRabbitBroker(IMessageBroker):
@@ -18,3 +20,6 @@ class FastStreamRabbitBroker(IMessageBroker):
 
     async def stop(self):
         await self._broker.stop()
+
+
+broker_service = FastStreamRabbitBroker(settings.rabbitmq_url)

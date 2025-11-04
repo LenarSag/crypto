@@ -2,6 +2,9 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
 class Settings(BaseSettings):
+    HOST: str = '127.0.0.1'
+    PORT: int = 8000
+
     POSTGRES_USER: str = 'postgres'
     POSTGRES_PASSWORD: str = 'postgres'
     POSTGRES_HOST: str = 'localhost'
@@ -32,6 +35,10 @@ class Settings(BaseSettings):
             f'{self.POSTGRES_PASSWORD}@{self.POSTGRES_HOST}:'
             f'{self.DB_PORT}/{self.POSTGRES_DB_NAME}'
         )
+
+    @property
+    def test_db_url(self):
+        return 'sqlite+aiosqlite:///db.sqlite3'
 
     @property
     def rabbitmq_url(self):

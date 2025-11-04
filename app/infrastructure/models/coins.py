@@ -4,7 +4,7 @@ from sqlalchemy.dialects.postgresql import UUID as PG_UUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from sqlalchemy.sql import func
 
-from app.infrastructure.db.base import Base
+from app.infrastructure.models.base import Base
 
 
 class Coin(Base):
@@ -18,5 +18,7 @@ class Coin(Base):
     description: Mapped[str] = mapped_column(nullable=True)
     created_at: Mapped[str] = mapped_column(server_default=func.now())
 
-    prices = relationship('Price', back_populates='crypto')
-    subscriptions = relationship('Subscription', back_populates='crypto')
+    prices = relationship('Price', back_populates='coin', cascade='all, delete-orphan')
+    subscriptions = relationship(
+        'Subscription', back_populates='coin', cascade='all, delete-orphan'
+    )

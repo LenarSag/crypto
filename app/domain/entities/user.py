@@ -20,7 +20,7 @@ class User:
     username: str
     email: str
     hashed_password: str
-    telegram_id: Optional[int]
+    telegram_id: int
     role: UserRole = UserRole.USER
     is_active: bool = True
     created_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))

@@ -9,7 +9,7 @@ from sqlalchemy.orm import Mapped, mapped_column, relationship
 from sqlalchemy.sql import func
 
 from app.domain.entities.subscription import ComparisonOperator
-from app.infrastructure.db.base import Base
+from app.infrastructure.models.base import Base
 
 
 class Subscription(Base):
@@ -29,5 +29,5 @@ class Subscription(Base):
     user_id: Mapped[PG_UUID] = mapped_column(ForeignKey('users.id'))
     coin_id: Mapped[PG_UUID] = mapped_column(ForeignKey('coins.id'))
 
-    user = relationship(back_populates='subscriptions', cascade='all, delete-orphan')
-    coin = relationship(back_populates='subscriptions', cascade='all, delete-orphan')
+    user = relationship('User', back_populates='subscriptions')
+    coin = relationship('Coin', back_populates='subscriptions')
