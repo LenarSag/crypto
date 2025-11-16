@@ -1,12 +1,11 @@
-from typing import Optional, Sequence
+from typing import Optional, Sequence, Union
 from uuid import UUID
 
-from sqlalchemy import delete
+from sqlalchemy import delete, func
 from sqlalchemy import update as sql_update
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
 
-from app.domain.const.constants import DEFAULT_LIMIT, DEFAULT_OFFSET
 from app.domain.entities.user import User
 from app.domain.repositories.user_repo import IUserRepository
 from app.infrastructure.mappers.user_mapper import UserMapper
@@ -40,13 +39,26 @@ class SQLAlchemyUserRepository(IUserRepository):
         return None
 
     async def list_users(
-        self, offset: int = DEFAULT_OFFSET, limit: int = DEFAULT_LIMIT
-    ) -> Sequence[User]:
+        self,
+        offset: int,
+        limit: int,
+    ) -> dict[str, Union[int, Sequence[User]]]:
+        total_stmt = (
+            select(func.count()).select_from(UserModel).where(UserModel.is_active)
+        )
+        total_result = await self._session.execute(total_stmt)
+        total = total_result.scalar_one()
+
         stmt = select(UserModel).where(UserModel.is_active).offset(offset).limit(limit)
         result = await self._session.execute(stmt)
         user_models = result.scalars().all()
         users_list = [UserMapper.to_entity(user_model) for user_model in user_models]
-        return users_list
+        return {
+            'users': users_list,
+            'total': total,
+            'offset': offset,
+            'limit': limit,
+        }
 
     async def update(self, user_id: UUID, update_data: dict) -> User:
         stmt = (

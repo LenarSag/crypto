@@ -7,6 +7,11 @@ from pydantic import BaseModel, ConfigDict, EmailStr, field_validator
 from app.domain.entities.user import UserRole
 
 
+class UserLoginData(BaseModel):
+    email: EmailStr
+    password: str
+
+
 class UserCreate(BaseModel):
     username: str
     email: EmailStr
@@ -41,5 +46,14 @@ class UserResponse(BaseModel):
     telegram_id: Optional[int] = None
     role: UserRole
     is_active: bool
+
+    model_config = ConfigDict(from_attributes=True, use_enum_values=True)
+
+
+class UserListResponse(BaseModel):
+    users: list[UserResponse]
+    total: int
+    offset: int
+    limit: int
 
     model_config = ConfigDict(from_attributes=True, use_enum_values=True)

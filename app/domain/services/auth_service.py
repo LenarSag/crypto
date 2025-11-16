@@ -2,11 +2,11 @@ from typing import Optional
 
 from app.domain.const.constants import KEY_EXPIRATION_SECONDS
 from app.domain.entities.token import Token
-from app.domain.entities.user import User
-from app.domain.exceptions.token import InvalidTokenError
+from app.domain.entities.user import User, UserLogin
+from app.domain.exceptions.token import InvalidTokenError, TokenExpiredError
 from app.domain.exceptions.user import (
     InactiveUserError,
-    IncorrectEmailOrPasswordError,
+    InvalidCredentialsError,
 )
 from app.domain.ports.cache import ICache
 from app.domain.ports.pw_hasher import PasswordHasher
@@ -22,30 +22,35 @@ class AuthService:
         self,
         user_repo: IUserRepository,
         token_provider: TokenProvider,
-        hasher: PasswordHasher,
+        password_hasher: PasswordHasher,
         cache: ICache,
     ):
         self._user_repo = user_repo
         self._token_provider = token_provider
-        self._hasher = hasher
+        self._hasher = password_hasher
         self._cache = cache
 
-    async def authenticate_user(self, email: str, raw_password: str) -> Optional[Token]:
+    async def authenticate_user(self, user_data: UserLogin) -> Optional[Token]:
         """Authenticate a user and return an access token."""
 
-        user = await self._user_repo.get_by_email(email)
-        if not user or not self._hasher.verify(raw_password, user.hashed_password):
-            raise IncorrectEmailOrPasswordError()
+        user = await self._user_repo.get_by_email(user_data.email)
+        if not user or not self._hasher.verify(
+            user_data.password, user.hashed_password
+        ):
+            raise InvalidCredentialsError()
 
         token = self._token_provider.create_access_token(user.id)
-        return token
+        return Token(access_token=token, token_type='Bearer')
 
     async def get_current_user(self, token: str) -> User:
-        """Resolve user from JWT token, with caching."""
+        """Resolve user from token, with caching."""
 
-        user_id = self._token_provider.verify_token(token)
-        if user_id is None:
+        try:
+            user_id = self._token_provider.verify_token(token)
+        except InvalidTokenError:
             raise InvalidTokenError()
+        except TokenExpiredError:
+            raise TokenExpiredError()
 
         cache_key = f'user:{user_id}'
         cached = await self._cache.get(cache_key)

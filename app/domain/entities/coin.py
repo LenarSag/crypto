@@ -1,5 +1,5 @@
-from dataclasses import dataclass, field, fields
-from datetime import datetime, timezone
+from dataclasses import dataclass, fields
+from datetime import datetime
 from typing import Any, Optional
 from uuid import UUID
 
@@ -12,7 +12,7 @@ class Coin:
     ticker: str
     name: str
     description: str
-    created_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
+    created_at: Optional[datetime]
 
     price: Optional[float] = None
 

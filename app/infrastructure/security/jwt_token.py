@@ -2,14 +2,14 @@ from datetime import datetime, timedelta, timezone
 from uuid import UUID
 
 import jwt
-from jwt.exceptions import InvalidTokenError
+from jwt.exceptions import InvalidTokenError as JWTInvalidTokenError
 
+from app.domain.exceptions.token import (
+    InvalidTokenError,
+    TokenExpiredError,
+)
 from app.domain.ports.token_provider import TokenProvider
 from app.infrastructure.config.settings import settings
-from app.infrastructure.exceptions.token_exceptions import (
-    InvalidTokenException,
-    TokenExpiredException,
-)
 
 
 class JWTTokenProvider(TokenProvider):
@@ -29,21 +29,21 @@ class JWTTokenProvider(TokenProvider):
             payload = jwt.decode(
                 access_token, settings.SECRET_KEY, algorithms=[settings.ALGORITHM]
             )
-        except InvalidTokenError:
-            raise InvalidTokenException
+        except JWTInvalidTokenError:
+            raise InvalidTokenError
 
         user_id = payload.get('sub')
         if user_id is None:
-            raise InvalidTokenException
+            raise InvalidTokenError
 
         expire = payload.get('exp')
         if expire is None:
-            raise InvalidTokenException
+            raise InvalidTokenError
         try:
             expiring_time = datetime.fromtimestamp(int(expire), tz=timezone.utc)
         except ValueError:
             raise InvalidTokenError
         if expiring_time < datetime.now(timezone.utc):
-            raise TokenExpiredException
+            raise TokenExpiredError
 
         return user_id

@@ -10,7 +10,7 @@ class UserNotFoundError(Exception):
         super().__init__(message)
 
 
-class IncorrectEmailOrPasswordError(Exception):
+class InvalidCredentialsError(Exception):
     def __init__(self):
         message = 'Incorrect email or password.'
         super().__init__(message)

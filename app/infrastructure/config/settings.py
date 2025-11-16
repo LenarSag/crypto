@@ -8,7 +8,7 @@ class Settings(BaseSettings):
     POSTGRES_USER: str = 'postgres'
     POSTGRES_PASSWORD: str = 'postgres'
     POSTGRES_HOST: str = 'localhost'
-    POSTGRES_DB_NAME: str = 'db'
+    POSTGRES_DB_NAME: str = 'postgres'
     DB_PORT: int = 5432
 
     SECRET_KEY: str = '4146b14f6b88f0e94042309d523279c8490446e74f3669062466721304207296'

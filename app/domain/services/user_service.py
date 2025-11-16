@@ -1,7 +1,11 @@
-from typing import Optional
+from typing import Optional, Union
 from uuid import UUID, uuid4
 
-from app.domain.const.constants import KEY_EXPIRATION_SECONDS
+from app.domain.const.constants import (
+    DEFAULT_LIMIT,
+    DEFAULT_OFFSET,
+    KEY_EXPIRATION_SECONDS,
+)
 from app.domain.entities.user import User, UserRole, UserUpdate
 from app.domain.exceptions.user import (
     EmailAlreadyExistsError,
@@ -9,7 +13,6 @@ from app.domain.exceptions.user import (
 )
 from app.domain.ports.cache import ICache
 from app.domain.ports.pw_hasher import PasswordHasher
-from app.domain.ports.token_provider import TokenProvider
 from app.domain.repositories.user_repo import IUserRepository
 from app.infrastructure.cache.cache_serializers import UserSerializer
 
@@ -21,12 +24,10 @@ class UserService:
         self,
         user_repo: IUserRepository,
         password_hasher: PasswordHasher,
-        token_provider: TokenProvider,
         cache: ICache,
     ):
         self._repo = user_repo
         self._hasher = password_hasher
-        self._token_provider = token_provider
         self._cache = cache
 
     async def create_user(
@@ -75,7 +76,9 @@ class UserService:
 
         return user
 
-    async def list_users(self, offset: int, limit: int) -> list[User]:
+    async def list_users(
+        self, offset: int = DEFAULT_OFFSET, limit: int = DEFAULT_LIMIT
+    ) -> dict[str, Union[int, list[User]]]:
         """List users with pagination."""
 
         return await self._repo.list_users(offset=offset, limit=limit)

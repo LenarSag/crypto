@@ -1,5 +1,5 @@
-from dataclasses import dataclass, field, fields
-from datetime import datetime, timezone
+from dataclasses import dataclass, fields
+from datetime import datetime
 from enum import Enum
 from typing import Optional
 from uuid import UUID
@@ -18,7 +18,7 @@ class Subscription:
     threshold_value: Optional[float] = None
     comparison_operator: Optional[ComparisonOperator] = None
     is_active: bool = True
-    created_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
+    created_at: Optional[datetime] = None
     updated_at: Optional[datetime] = None
 
 
